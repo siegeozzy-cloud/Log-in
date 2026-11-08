@@ -1,0 +1,396 @@
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  padding: 44px 40px 40px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Without backdrop-filter the pane has nothing to blur, so it has to carry
+   its own contrast instead of letting the globe read straight through. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .card {
+    background: var(--glass-fallback);
+  }
+}
+
+/* The angled sheen across the top-left corner that sells the glass. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glass-sheen);
+  pointer-events: none;
+}
+
+/* --- View switching ------------------------------------------------------ */
+
+/* Height is set in JS from the active panel, so the card grows and shrinks
+   smoothly between views instead of snapping. */
+.panels {
+  position: relative;
+  z-index: 1;
+  min-height: 280px;
+  transition: height 520ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition:
+    opacity 320ms ease,
+    transform 320ms ease,
+    visibility 0s linear 320ms;
+}
+
+.panelActive {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  /* Fade in behind the outgoing panel's fade out. */
+  transition:
+    opacity 340ms ease 120ms,
+    transform 340ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms,
+    visibility 0s;
+}
+
+/* --- Type ---------------------------------------------------------------- */
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+
+.title:focus-visible {
+  outline: none;
+  box-shadow: 0 2px 0 0 var(--accent);
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--fg-muted);
+}
+
+/* --- Form ---------------------------------------------------------------- */
+
+.form {
+  margin-top: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--fg);
+  background: var(--input-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  outline: none;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.input::placeholder {
+  color: var(--fg-faint);
+}
+
+.input:hover {
+  border-color: var(--fg-faint);
+}
+
+.input:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+/* Native validation, styled: :user-invalid only matches after the field has
+   been interacted with, so nothing turns red before it has been filled in. */
+.input:user-invalid,
+.input:user-invalid:hover {
+  border-color: var(--accent);
+}
+
+.hasToggle {
+  padding-right: 46px;
+}
+
+.toggle {
+  position: absolute;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--fg-muted);
+  background: none;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.toggle:hover {
+  color: var(--fg);
+  background: var(--accent-soft);
+}
+
+.toggle:focus-visible {
+  outline: none;
+  color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+/* --- Checkbox row -------------------------------------------------------- */
+
+.optionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -2px;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.checkbox {
+  appearance: none;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  background: var(--input-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease;
+}
+
+.checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  /* Tick drawn as a background image so it tracks the box, not the text. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.2 8.4 6.4 11.6 12.8 4.8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 15px 15px;
+}
+
+.checkbox:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+.checkboxLabel {
+  font-size: 0.925rem;
+  color: var(--fg);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+
+.submit {
+  display: grid;
+  place-items: center;
+  height: 50px;
+  margin-top: 6px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    transform 90ms ease;
+}
+
+.submit:hover {
+  background: var(--accent-hover);
+}
+
+.submit:active {
+  background: var(--accent-active);
+  transform: translateY(1px);
+}
+
+.submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+/* Inline text button: forgot password, terms, back to log in. */
+.link {
+  padding: 2px;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: color 140ms ease;
+}
+
+.link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.backRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+/* --- Footer note --------------------------------------------------------- */
+
+.note {
+  margin: 20px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--fg-muted);
+}
+
+.note .link {
+  font-size: inherit;
+  /* No side padding, or the full stop after it sits adrift. */
+  padding-inline: 0;
+}
+
+/* --- Terms list ---------------------------------------------------------- */
+
+.terms {
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: term;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.terms li {
+  position: relative;
+  padding-left: 32px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--fg-muted);
+  counter-increment: term;
+}
+
+.terms li::before {
+  content: counter(term);
+  position: absolute;
+  top: 1px;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-ring);
+  border-radius: 50%;
+}
+
+.terms strong {
+  display: block;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+/* --- Motion and small screens -------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .panels,
+  .panel,
+  .panelActive,
+  .input,
+  .submit,
+  .toggle,
+  .checkbox,
+  .link {
+    transition: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .card {
+    padding: 34px 24px 30px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .optionsRow {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+}
